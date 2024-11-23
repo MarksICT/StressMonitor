@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DataCollection.Windows (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "DataCollection.Windows (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
