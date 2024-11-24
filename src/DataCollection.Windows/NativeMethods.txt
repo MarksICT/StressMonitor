@@ -1,38 +1,42 @@
 ﻿// Functions
-Shell_NotifyIconW
-RegisterWindowMessageW
-SetWindowLongPtrW
 CallWindowProcW
 DefWindowProcW
-PostMessageW
+FormatMessage
+GetCurrentProcess
+GetForegroundWindow
+GetLocaleInfoEx
 GetWindowLongPtrW
+GetWindowText
+GetWindowThreadProcessId
 LoadIconW
 LoadImageW
+OpenProcess
+PostMessageW
+QueryFullProcessImageName
+RegisterWindowMessageW
+SetWindowLongPtrW
+Shell_NotifyIconW
+ShowWindow
 
 // Structures
 Windows.Win32.UI.Shell.NOTIFYICONDATAW
 Windows.Win32.UI.WindowsAndMessaging.WNDPROC
 
 // Constants
-NIM_ADD
-NIM_DELETE
-NIM_MODIFY
-NIF_MESSAGE
-NIF_ICON
-NIF_TIP
-WM_USER
+FORMAT_MESSAGE_OPTIONS
+GDI_IMAGE_TYPE
+IDI_APPLICATION
+IMAGE_FLAGS
+LOCALE_NAME_INVARIANT
+LOCALE_WINDOWS
+NOTIFY_ICON_MESSAGE
+PROCESS_ACCESS_RIGHTS
+SC_MINIMIZE
+SHOW_WINDOW_CMD
+WINDOW_LONG_PTR_INDEX
+WM_CONTEXTMENU
+WM_DESTROY
 WM_LBUTTONDBLCLK
 WM_RBUTTONDOWN
-WM_CONTEXTMENU
-GWL_WNDPROC
+WM_USER
 WM_SYSCOMMAND
-SC_MINIMIZE
-SW_HIDE
-SW_SHOW
-IDI_APPLICATION
-IMAGE_ICON
-LR_DEFAULTCOLOR
-LR_SHARED
-WINDOW_MESSAGE
-WM_DESTROY
-ShowWindow

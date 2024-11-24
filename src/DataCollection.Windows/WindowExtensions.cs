@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml;
+using System;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Shell;
 using Windows.Win32.UI.WindowsAndMessaging;
-using Microsoft.UI.Xaml;
 using WinRT.Interop;
 
 namespace DataCollection.Windows;
