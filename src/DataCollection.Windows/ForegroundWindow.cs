@@ -9,7 +9,7 @@ namespace DataCollection.Windows;
 
 public class ForegroundWindow
 {
-    public static ErrorOr<string> GetWindowTitle()
+    internal static ErrorOr<string> GetWindowTitle(HWND window)
     {
         PWSTR title;
         unsafe
@@ -17,20 +17,19 @@ public class ForegroundWindow
             var str = stackalloc char[256];
             title = str;
         }
-        var foregroundWindowHandle = PInvoke.GetForegroundWindow();
-        var result = PInvoke.GetWindowText(foregroundWindowHandle, title, 256);
+        var result = PInvoke.GetWindowText(window, title, 256);
         if (result <= 0)
         {
-            return Error.Failure(description: Win32Helpers.GetErrorMessage(Marshal.GetLastWin32Error()));
+            return Error.Failure(description: Marshal.GetLastPInvokeErrorMessage());
         }
 
         var titleString = title.AsSpan().ToString();
         return titleString;
     }
 
-    public static ErrorOr<string> GetFileName()
+    internal static ErrorOr<string> GetFileName(HWND window)
     {
-        var getProcessIdResult = GetProcessId();
+        var getProcessIdResult = GetProcessId(window);
         if (getProcessIdResult.IsError)
         {
             return getProcessIdResult.Errors;
@@ -40,7 +39,7 @@ public class ForegroundWindow
             getProcessIdResult.Value);
         if (hProcess == null)
         {
-            return Error.Failure(description: Win32Helpers.GetErrorMessage(Marshal.GetLastWin32Error()));
+            return Error.Failure(description: Marshal.GetLastPInvokeErrorMessage());
         }
         try
         {
@@ -55,7 +54,7 @@ public class ForegroundWindow
                 exeNameBuffer, ref capacity);
             if (!success)
             {
-                return Error.Failure(description: Win32Helpers.GetErrorMessage(Marshal.GetLastWin32Error()));
+                return Error.Failure(description: Marshal.GetLastPInvokeErrorMessage());
             }
 
             var fullPath = new string(exeNameBuffer.AsSpan()[..(int)capacity]);
@@ -69,14 +68,13 @@ public class ForegroundWindow
         }
     }
 
-    private static unsafe ErrorOr<uint> GetProcessId()
+    private static unsafe ErrorOr<uint> GetProcessId(HWND window)
     {
         var processId = stackalloc uint[1];
-        var foregroundWindowHandle = PInvoke.GetForegroundWindow();
-        var getProcessIdResult = PInvoke.GetWindowThreadProcessId(foregroundWindowHandle, processId);
+        var getProcessIdResult = PInvoke.GetWindowThreadProcessId(window, processId);
         if (getProcessIdResult == 0)
         {
-            return Error.Failure(description: Win32Helpers.GetErrorMessage(Marshal.GetLastWin32Error()));
+            return Error.Failure(description: Marshal.GetLastPInvokeErrorMessage());
         }
 
         return *processId;
