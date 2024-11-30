@@ -1,8 +1,11 @@
 ﻿// Functions
+AppendMenu
 CallWindowProcW
+CreatePopupMenu
 DefWindowProcW
 FormatMessage
 GetCurrentProcess
+GetCursorPos
 GetForegroundWindow
 GetLocaleInfoEx
 GetWindowLongPtrW
@@ -14,15 +17,20 @@ OpenProcess
 PostMessageW
 QueryFullProcessImageName
 RegisterWindowMessageW
+SetForegroundWindow
 SetWindowLongPtrW
+SetWinEventHook
 Shell_NotifyIconW
 ShowWindow
+TrackPopupMenuEx
+UnhookWinEvent
 
 // Structures
 Windows.Win32.UI.Shell.NOTIFYICONDATAW
 Windows.Win32.UI.WindowsAndMessaging.WNDPROC
 
 // Constants
+EVENT_SYSTEM_FOREGROUND
 FORMAT_MESSAGE_OPTIONS
 GDI_IMAGE_TYPE
 IDI_APPLICATION
@@ -30,13 +38,17 @@ IMAGE_FLAGS
 LOCALE_NAME_INVARIANT
 LOCALE_WINDOWS
 NOTIFY_ICON_MESSAGE
+POINT
 PROCESS_ACCESS_RIGHTS
 SC_MINIMIZE
 SHOW_WINDOW_CMD
+TRACK_POPUP_MENU_FLAGS
+WINEVENT_OUTOFCONTEXT
 WINDOW_LONG_PTR_INDEX
 WM_CONTEXTMENU
 WM_DESTROY
 WM_LBUTTONDBLCLK
 WM_RBUTTONDOWN
+WM_RBUTTONUP
 WM_USER
 WM_SYSCOMMAND

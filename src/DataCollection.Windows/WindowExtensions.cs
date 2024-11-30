@@ -1,4 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.AppNotifications.Builder;
 using System;
 using System.Runtime.InteropServices;
 using Windows.Win32;
@@ -19,6 +21,7 @@ public static class WindowExtensions
     {
         private NOTIFYICONDATAW _notifyIconData;
         private readonly string _toolTipText;
+        private OptionsWindow? _optionsWindow;
         public IntPtr HWnd { get; }
         public NOTIFYICONDATAW NotifyIconData 
         { 
@@ -51,16 +54,89 @@ public static class WindowExtensions
                 }
             }
         }
+
+        public void ShowContextMenu()
+        {
+            var menu = PInvoke.CreatePopupMenu_SafeHandle();
+            PInvoke.AppendMenu(menu, MENU_ITEM_FLAGS.MF_STRING, 1, "Options");
+            PInvoke.AppendMenu(menu, MENU_ITEM_FLAGS.MF_STRING, 2, "Exit");
+
+            PInvoke.GetCursorPos(out var pt);
+            PInvoke.SetForegroundWindow(new HWND(HWnd));
+            var cmd = PInvoke.TrackPopupMenuEx(menu,
+                (uint) (TRACK_POPUP_MENU_FLAGS.TPM_LEFTALIGN | TRACK_POPUP_MENU_FLAGS.TPM_RETURNCMD), pt.X, pt.Y,
+                new HWND(HWnd), null);
+
+            if (cmd == 1)
+            {
+                ShowOptionsWindow();
+            }
+            else if (cmd == 2)
+            {
+                ExitApplication();
+            }
+        }
+
+        public void ShowOptionsWindow()
+        {
+            _optionsWindow = new OptionsWindow();
+            _optionsWindow.Activate();
+        }
+
+        private static void ExitApplication()
+        {
+            Application.Current.Exit();
+        }
     }
 
     public static void SetWindowToMinimizeToTray(this Window window)
     {
-        var info = new WindowInfo(window, CreateWndProcDelegate, AppDomain.CurrentDomain.FriendlyName);
+        var info = new WindowInfo(window, CreateWndProcDelegateMinimize, AppDomain.CurrentDomain.FriendlyName);
         info.NotifyIconData = InitializeNotifyIconData(info.HWnd, IdTrayAppIcon, WmTrayIcon);
         window.Closed += (_, _) => Cleanup(info.HWnd, info.NotifyIconData, info.OriginalWndProc);
     }
 
-    private static WndProcDelegate CreateWndProcDelegate(WindowInfo info)
+    public static void SetWindowToOnlyRunInTray(this Window window)
+    {
+        var info = new WindowInfo(window, CreateWndProcDelegateOnlySystemTray, AppDomain.CurrentDomain.FriendlyName);
+        info.NotifyIconData = InitializeNotifyIconData(info.HWnd, IdTrayAppIcon, WmTrayIcon);
+        window.Closed += (_, _) => Cleanup(info.HWnd, info.NotifyIconData, info.OriginalWndProc);
+        PInvoke.Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_ADD, info.NotifyIconData);
+        PInvoke.ShowWindow(new HWND(info.HWnd), SHOW_WINDOW_CMD.SW_HIDE);
+    }
+
+    public static void RestoreFromTray(this Window window)
+    {
+        var handle = WindowNative.GetWindowHandle(window);
+        RestoreFromTray(handle, InitializeNotifyIconData(handle, IdTrayAppIcon, WmTrayIcon));
+    }
+
+    private static WndProcDelegate CreateWndProcDelegateOnlySystemTray(WindowInfo info)
+    {
+        return (hWnd, msg, wParam, lParam) =>
+        {
+            switch (msg)
+            {
+                case WmTrayIcon when wParam == IdTrayAppIcon:
+                    switch ((uint)lParam.Value)
+                    {
+                        case PInvoke.WM_RBUTTONUP:
+                            info.ShowContextMenu();
+                            break;
+                        case PInvoke.WM_LBUTTONDBLCLK:
+                            info.ShowOptionsWindow();
+                            break;
+                    }
+                    return new LRESULT(0);
+                case PInvoke.WM_DESTROY:
+                    Cleanup(hWnd, info.NotifyIconData, info.OriginalWndProc);
+                    break;
+            }
+            return PInvoke.CallWindowProc(info.OriginalWndProc, hWnd, msg, wParam, lParam);
+        };
+    }
+
+    private static WndProcDelegate CreateWndProcDelegateMinimize(WindowInfo info)
     {
         return (hWnd, msg, wParam, lParam) =>
         {
@@ -100,6 +176,11 @@ public static class WindowExtensions
     {
         PInvoke.Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_ADD, in notifyIconData);
         PInvoke.ShowWindow(new HWND(hWnd), SHOW_WINDOW_CMD.SW_HIDE);
+        var builder = new AppNotificationBuilder()
+            .AddText("The app is still running in the system tray.");
+
+        var notificationManager = AppNotificationManager.Default;
+        notificationManager.Show(builder.BuildNotification());
     }
 
     private static void RestoreFromTray(IntPtr hWnd, NOTIFYICONDATAW notifyIconData)
