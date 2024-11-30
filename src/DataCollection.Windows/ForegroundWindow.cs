@@ -1,9 +1,8 @@
 ﻿using ErrorOr;
-using System.IO;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
-using Windows.Win32.System.Threading;
 
 namespace DataCollection.Windows;
 
@@ -20,14 +19,20 @@ public class ForegroundWindow
         var result = PInvoke.GetWindowText(window, title, 256);
         if (result <= 0)
         {
+            var errorCode = Marshal.GetLastWin32Error();
+            if (errorCode == 0)
+            {
+                return string.Empty;
+            }
+            
             return Error.Failure(description: Marshal.GetLastPInvokeErrorMessage());
         }
-
+        
         var titleString = title.AsSpan().ToString();
         return titleString;
     }
 
-    internal static ErrorOr<string> GetFileName(HWND window)
+    internal static ErrorOr<string> GetProcessFileName(HWND window)
     {
         var getProcessIdResult = GetProcessId(window);
         if (getProcessIdResult.IsError)
@@ -35,37 +40,24 @@ public class ForegroundWindow
             return getProcessIdResult.Errors;
         }
 
-        var hProcess = PInvoke.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false,
-            getProcessIdResult.Value);
-        if (hProcess == null)
-        {
-            return Error.Failure(description: Marshal.GetLastPInvokeErrorMessage());
-        }
-        try
-        {
-            uint capacity = 1024;
-            PWSTR exeNameBuffer;
-            unsafe
-            {
-                var str = stackalloc char[(int)capacity];
-                exeNameBuffer = str;
-            }
-            bool success = PInvoke.QueryFullProcessImageName(hProcess, PROCESS_NAME_FORMAT.PROCESS_NAME_WIN32,
-                exeNameBuffer, ref capacity);
-            if (!success)
-            {
-                return Error.Failure(description: Marshal.GetLastPInvokeErrorMessage());
-            }
+        var process = Process.GetProcessById((int) getProcessIdResult.Value);
+        var fileName = process.MainModule?.FileVersionInfo.FileName ?? process.ProcessName;
+        return fileName;
+    }
 
-            var fullPath = new string(exeNameBuffer.AsSpan()[..(int)capacity]);
-            var processName = Path.GetFileName(fullPath);
-            return processName;
-        }
-        finally
+    internal static ErrorOr<string> GetProcessFriendlyName(HWND window)
+    {
+        var getProcessIdResult = GetProcessId(window);
+        if (getProcessIdResult.IsError)
         {
-            // Close the process handle
-            hProcess.Close();
+            return getProcessIdResult.Errors;
         }
+
+        var process = Process.GetProcessById((int)getProcessIdResult.Value);
+        var friendlyName = process.MainModule?.FileVersionInfo.FileDescription ??
+                           process.MainModule?.FileVersionInfo.ProductName;
+
+        return friendlyName ?? process.ProcessName;
     }
 
     private static unsafe ErrorOr<uint> GetProcessId(HWND window)

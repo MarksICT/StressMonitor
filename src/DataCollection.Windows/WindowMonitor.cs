@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Threading;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Accessibility;
@@ -15,6 +18,7 @@ public class WindowMonitor(IDataCollector dataCollector)
     private string _foregroundProcessFileName = string.Empty;
     private DateTimeOffset _currentWindowOpenTime;
     public List<string> Errors { get; } = [];
+    private readonly Lock _lock = new();
 
     public void StartMonitoring()
     {
@@ -45,7 +49,7 @@ public class WindowMonitor(IDataCollector dataCollector)
         try
         {
             var getWindowTitleResult = ForegroundWindow.GetWindowTitle(hwnd);
-            var getProcessFilenameResult = ForegroundWindow.GetFileName(hwnd);
+            var getProcessFilenameResult = ForegroundWindow.GetProcessFileName(hwnd);
             if (getWindowTitleResult.IsError && getProcessFilenameResult.IsError)
             {
                 _foregroundWindowTitle = string.Empty;

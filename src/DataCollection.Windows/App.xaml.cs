@@ -21,6 +21,7 @@ public partial class App
     public App()
     {
         InitializeComponent();
+        DispatcherShutdownMode = DispatcherShutdownMode.OnExplicitShutdown;
     }
 
     /// <summary>
@@ -50,8 +51,7 @@ public partial class App
             message.ShowAsync();
         };
 
-        _messageWindow = new MessageWindow();
-        _messageWindow.SetWindowToOnlyRunInTray();
+        _messageWindow = new MessageWindow(true);
         _messageWindow?.StartDataCollection();
     }
 }

@@ -2,6 +2,7 @@
 AppendMenu
 CallWindowProcW
 CreatePopupMenu
+CreateWindowEx
 DefWindowProcW
 FormatMessage
 GetCurrentProcess
@@ -13,9 +14,12 @@ GetWindowText
 GetWindowThreadProcessId
 LoadIconW
 LoadImageW
+MessageBoxEx
 OpenProcess
 PostMessageW
 QueryFullProcessImageName
+RegisterClass
+RegisterClassEx
 RegisterWindowMessageW
 SetForegroundWindow
 SetWindowLongPtrW
@@ -33,12 +37,12 @@ Windows.Win32.UI.WindowsAndMessaging.WNDPROC
 EVENT_SYSTEM_FOREGROUND
 FORMAT_MESSAGE_OPTIONS
 GDI_IMAGE_TYPE
+HWND_MESSAGE
 IDI_APPLICATION
 IMAGE_FLAGS
 LOCALE_NAME_INVARIANT
 LOCALE_WINDOWS
 NOTIFY_ICON_MESSAGE
-POINT
 PROCESS_ACCESS_RIGHTS
 SC_MINIMIZE
 SHOW_WINDOW_CMD
