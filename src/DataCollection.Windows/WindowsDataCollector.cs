@@ -11,7 +11,7 @@ public class WindowsDataCollector : IDataCollector
     public WindowsDataCollector()
     {
         AccumulatedDataFactory<WindowsData>.RegisterFactory((properties, time) =>
-            new AccumulatedWindowsData(properties.WindowTitle, properties.ProcessFileName, time));
+            new AccumulatedWindowsData(properties.WindowTitle, properties.ProcessFileName, properties .ProcessFriendlyName, time));
         DataComparerFactory<WindowsData>.RegisterFactory(() => new WindowsDataComparer());
     }
 

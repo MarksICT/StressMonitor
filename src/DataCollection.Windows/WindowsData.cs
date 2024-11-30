@@ -3,10 +3,16 @@ using System;
 
 namespace DataCollection.Windows;
 
-public class WindowsData(string windowTitle, string processFileName, DateTimeOffset startTime, DateTimeOffset stopTime) : IData
+public class WindowsData(
+    string windowTitle,
+    string processFileName,
+    string processFriendlyName,
+    DateTimeOffset startTime,
+    DateTimeOffset stopTime) : IData
 {
     public string WindowTitle { get; } = windowTitle;
     public string ProcessFileName { get; } = processFileName;
+    public string ProcessFriendlyName { get; } = processFriendlyName;
     public DateTimeOffset StartTime { get; } = startTime;
     public DateTimeOffset StopTime { get; } = stopTime;
     
@@ -18,7 +24,9 @@ public class WindowsData(string windowTitle, string processFileName, DateTimeOff
         }
 
         return otherData.ProcessFileName.Equals(ProcessFileName, StringComparison.InvariantCultureIgnoreCase) &&
-               otherData.WindowTitle.Equals(WindowTitle, StringComparison.InvariantCultureIgnoreCase);
+               otherData.ProcessFriendlyName.Equals(ProcessFriendlyName, StringComparison.InvariantCultureIgnoreCase) &&
+               otherData.WindowTitle.Equals(WindowTitle, StringComparison.InvariantCultureIgnoreCase) &&
+               otherData.StartTime.Equals(StartTime) && otherData.StopTime.Equals(StopTime);
     }
 
     bool IData.CategoryEquals(IData? other)
@@ -34,7 +42,7 @@ public class WindowsData(string windowTitle, string processFileName, DateTimeOff
         }
 
         return other.ProcessFileName.Equals(ProcessFileName, StringComparison.InvariantCultureIgnoreCase) &&
-               other.WindowTitle.Equals(WindowTitle, StringComparison.InvariantCultureIgnoreCase);
+               other.ProcessFriendlyName.Equals(ProcessFriendlyName, StringComparison.InvariantCultureIgnoreCase);
     }
 
     public override int GetHashCode()

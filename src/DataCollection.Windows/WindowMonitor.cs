@@ -1,12 +1,10 @@
-﻿using System;
+﻿using DataCollection.Common;
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using System.Threading;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Accessibility;
-using DataCollection.Common;
 
 namespace DataCollection.Windows;
 
@@ -16,6 +14,7 @@ public class WindowMonitor(IDataCollector dataCollector)
     private readonly IDataCollector _dataCollector = dataCollector;
     private string _foregroundWindowTitle = string.Empty;
     private string _foregroundProcessFileName = string.Empty;
+    private string _foregroundProcessFriendlyName = string.Empty;
     private DateTimeOffset _currentWindowOpenTime;
     public List<string> Errors { get; } = [];
     private readonly Lock _lock = new();
@@ -50,10 +49,12 @@ public class WindowMonitor(IDataCollector dataCollector)
         {
             var getWindowTitleResult = ForegroundWindow.GetWindowTitle(hwnd);
             var getProcessFilenameResult = ForegroundWindow.GetProcessFileName(hwnd);
+            var getProcessFriendlyNameResult = ForegroundWindow.GetProcessFriendlyName(hwnd);
             if (getWindowTitleResult.IsError && getProcessFilenameResult.IsError)
             {
                 _foregroundWindowTitle = string.Empty;
                 _foregroundProcessFileName = string.Empty;
+                _foregroundProcessFriendlyName = string.Empty;
                 _currentWindowOpenTime = DateTimeOffset.UtcNow;
                 Errors.Add(getWindowTitleResult.FirstError.Description);
                 return;
@@ -63,6 +64,7 @@ public class WindowMonitor(IDataCollector dataCollector)
             {
                 _foregroundWindowTitle = string.Empty;
                 _foregroundProcessFileName = string.Empty;
+                _foregroundProcessFriendlyName = string.Empty;
                 _currentWindowOpenTime = DateTimeOffset.UtcNow;
                 Errors.Add(getProcessFilenameResult.FirstError.Description);
                 return;
@@ -81,12 +83,13 @@ public class WindowMonitor(IDataCollector dataCollector)
 
             if (!string.IsNullOrEmpty(_foregroundProcessFileName))
             {
-                var data = new WindowsData(_foregroundWindowTitle, _foregroundProcessFileName, _currentWindowOpenTime,
-                    DateTimeOffset.Now);
+                var data = new WindowsData(_foregroundWindowTitle, _foregroundProcessFileName,
+                    _foregroundProcessFriendlyName, _currentWindowOpenTime, DateTimeOffset.Now);
                 _dataCollector.AddData(data);
             }
             _foregroundWindowTitle = getWindowTitleResult.Value;
             _foregroundProcessFileName = getProcessFilenameResult.Value;
+            _foregroundProcessFriendlyName = getProcessFriendlyNameResult.Match(value => value, errors => "UNKNOWN");
             _currentWindowOpenTime = DateTimeOffset.UtcNow;
         }
         catch (Exception)
