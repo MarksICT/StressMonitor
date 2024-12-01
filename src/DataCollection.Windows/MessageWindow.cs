@@ -8,6 +8,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Shell;
 using Windows.Win32.UI.WindowsAndMessaging;
+using DataCollection.Persistence;
 
 namespace DataCollection.Windows;
 
@@ -34,9 +35,9 @@ internal class MessageWindow
     public const uint WmTrayIcon = 0x8000; // Custom message identifier
     public const uint IdTrayAppIcon = 5000;
 
-    public MessageWindow(bool onlyRunInSystemTray)
+    public MessageWindow(bool onlyRunInSystemTray, IDataCollectionService dataCollectionService)
     {
-        _dataCollector = new WindowsDataCollector();
+        _dataCollector = new WindowsDataCollector(dataCollectionService);
         _windowMonitor = new WindowMonitor(_dataCollector);
         _hwnd = CreateMessageOnlyWindow();
         _toolTipText = AppDomain.CurrentDomain.FriendlyName;

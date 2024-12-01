@@ -1,24 +1,25 @@
 ﻿using DataCollection.Common;
-using System.Collections.Generic;
+using DataCollection.Persistence;
 using System.Linq;
 
 namespace DataCollection.Windows;
 
 public class WindowsDataCollector : IDataCollector
 {
-    private readonly List<WindowsData> _data = [];
+    private readonly IDataCollectionService _collectionService;
 
-    public WindowsDataCollector()
+    public WindowsDataCollector(IDataCollectionService collectionService)
     {
         AccumulatedDataFactory<WindowsData>.RegisterFactory((properties, time) =>
             new AccumulatedWindowsData(properties.WindowTitle, properties.ProcessFileName, properties .ProcessFriendlyName, time));
         DataComparerFactory<WindowsData>.RegisterFactory(() => new WindowsDataComparer());
+        _collectionService = collectionService;
     }
 
     public IAccumulatedData[] GetAccumulatedData()
     {
-        var accumulatedData = _data.AggregateTime().ToArray();
-        return accumulatedData;
+        var accumulatedData = _collectionService.Get<WindowsData>().AggregateTime();
+        return accumulatedData as IAccumulatedData[] ?? accumulatedData.ToArray();
     }
 
     void IDataCollector.AddData(IData data)
@@ -31,6 +32,6 @@ public class WindowsDataCollector : IDataCollector
 
     public void AddData(WindowsData data)
     {
-        _data.Add(data);
+        _collectionService.Add(data);
     }
 }

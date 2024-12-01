@@ -1,5 +1,6 @@
 ﻿using DataCollection.Common;
 using System;
+using DataCollection.Persistence;
 
 namespace DataCollection.Windows;
 
@@ -18,6 +19,14 @@ public class WindowsData(
     
     public override bool Equals(object? other)
     {
+        if (other is WindowsDataEntity windowsDataEntity)
+        {
+            return (windowsDataEntity.ProcessFileName?.Equals(ProcessFileName, StringComparison.InvariantCultureIgnoreCase) ?? false) &&
+                   (windowsDataEntity.ProcessFriendlyName?.Equals(ProcessFriendlyName, StringComparison.InvariantCultureIgnoreCase) ?? false) &&
+                   (windowsDataEntity.WindowTitle?.Equals(WindowTitle, StringComparison.InvariantCultureIgnoreCase) ?? false) &&
+                   windowsDataEntity.StartTime.Equals(StartTime) && windowsDataEntity.StopTime.Equals(StopTime);
+        }
+
         if (other is not WindowsData otherData)
         {
             return false;

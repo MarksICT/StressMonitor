@@ -1,7 +1,6 @@
 ﻿using DataCollection.Common;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Accessibility;
@@ -17,7 +16,6 @@ public class WindowMonitor(IDataCollector dataCollector)
     private string _foregroundProcessFriendlyName = string.Empty;
     private DateTimeOffset _currentWindowOpenTime;
     public List<string> Errors { get; } = [];
-    private readonly Lock _lock = new();
 
     public void StartMonitoring()
     {
@@ -89,7 +87,7 @@ public class WindowMonitor(IDataCollector dataCollector)
             }
             _foregroundWindowTitle = getWindowTitleResult.Value;
             _foregroundProcessFileName = getProcessFilenameResult.Value;
-            _foregroundProcessFriendlyName = getProcessFriendlyNameResult.Match(value => value, errors => "UNKNOWN");
+            _foregroundProcessFriendlyName = getProcessFriendlyNameResult.Match(value => value, _ => "UNKNOWN");
             _currentWindowOpenTime = DateTimeOffset.UtcNow;
         }
         catch (Exception)

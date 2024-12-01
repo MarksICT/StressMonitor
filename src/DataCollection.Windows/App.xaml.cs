@@ -1,5 +1,8 @@
 ﻿using Microsoft.UI.Xaml;
 using Windows.UI.Popups;
+using DataCollection.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using WinRT.Interop;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -13,6 +16,7 @@ namespace DataCollection.Windows;
 public partial class App
 {
     private MessageWindow? _messageWindow;
+    private readonly ServiceProvider _services;
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -22,6 +26,11 @@ public partial class App
     {
         InitializeComponent();
         DispatcherShutdownMode = DispatcherShutdownMode.OnExplicitShutdown;
+        _services = new ServiceCollection()
+            .AddDbContext<DataCollectorDbContext>()
+            .AddScoped<IDataCollectionService, WindowsDataCollectionService>()
+            .BuildServiceProvider();
+        _services.GetRequiredService<DataCollectorDbContext>().Database.Migrate();
     }
 
     /// <summary>
@@ -51,7 +60,7 @@ public partial class App
             message.ShowAsync();
         };
 
-        _messageWindow = new MessageWindow(true);
+        _messageWindow = new MessageWindow(true, _services.CreateScope().ServiceProvider.GetRequiredService<IDataCollectionService>());
         _messageWindow?.StartDataCollection();
     }
 }
