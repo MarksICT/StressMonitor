@@ -1,0 +1,9 @@
+{
+    "name": "com.marksict.stress_monitor_edge",
+    "description": "Native Messaging Host Example",
+    "path": "H:\\StressMonitor\\src\\BrowserExtensions\\MicrosoftEdge\\DataCollection.Browser\\bin\\Release\\net9.0\\DataCollection.Browser.exe",
+    "type": "stdio",
+    "allowed_origins": [
+        "chrome-extension://pabfldcdpgjlfceobkbmocbeedapaapl/"
+    ]
+}
