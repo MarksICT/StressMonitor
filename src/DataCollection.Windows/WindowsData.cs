@@ -1,6 +1,6 @@
 ﻿using DataCollection.Common;
+using DataCollection.Persistence.Entities;
 using System;
-using DataCollection.Persistence;
 
 namespace DataCollection.Windows;
 

@@ -1,10 +1,11 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DataCollection.Browser;
 
 public class MessageProcessor
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = JsonSerializerOptions.Web;
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web){ Converters = { new JsonStringEnumConverter() } };
 
     public static BrowserMessage? Read()
     {
