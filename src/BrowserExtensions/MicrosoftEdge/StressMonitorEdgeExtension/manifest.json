@@ -1,0 +1,20 @@
+{
+    "name": "Stress Monitor Extension",
+    "version": "1.0",
+    "description": "Monitors and logs personal browsing activity. Icon by Freepik.com",
+    "manifest_version": 3,
+    "permissions": [
+      "tabs",
+      "activeTab",
+      "storage",
+      "nativeMessaging"
+    ],
+    "background": {
+      "service_worker": "service_worker.js" 
+    },
+    "icons": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  }
